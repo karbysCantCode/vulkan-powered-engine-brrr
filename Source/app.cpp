@@ -41,6 +41,7 @@ namespace Malodee {
     vkDevice.~Device();
     vkWindow.DestroySurface();
     vkInstance.~Instance();
+    vkWindow.~Window();
     
     glfwTerminate();
   }
