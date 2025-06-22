@@ -26,6 +26,7 @@ namespace Vulkan {
     ~SwapChain();
 
     void createSwapChain();
+    void createImageViews();
 
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -39,6 +40,7 @@ namespace Vulkan {
     VkFormat vkSwapChainImageFormat;
     VkExtent2D vkSwapChainExtent;
     std::vector<VkImage> vkSwapChainImages;
+    std::vector<VkImageView> vkSwapChainImageViews;
   };
 }
 }

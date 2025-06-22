@@ -56,7 +56,7 @@ namespace Vulkan {
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
 
-    if (*pInstance->enableValidationLayers) {
+    if (pInstance->enableValidationLayers) {
       createInfo.enabledLayerCount = static_cast<uint32_t>(pInstance->validationLayers.size());
       createInfo.ppEnabledLayerNames = pInstance->validationLayers.data();
     } else {
@@ -67,21 +67,21 @@ namespace Vulkan {
       throw std::runtime_error("Failed to create logical device!");
     }
 
-    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &vkGraphicsQueue);
-    vkGetDeviceQueue(device, indices.presentFamily.value(),  0, &vkPresentQueue);
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, indices.presentFamily.value(),  0, &presentQueue);
 
   }
 
   void Device::pickPhysicalDevice() {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(*pInstance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(pInstance->instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) {
       throw std::runtime_error("Failed to find GPU's with Vulkan support!");
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(*pInstance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(pInstance->instance, &deviceCount, devices.data());
 
     std::multimap<int, VkPhysicalDevice, std::greater<int>> candidates;
 
@@ -117,7 +117,7 @@ namespace Vulkan {
     bool swapChainAdequate = false;
 
     if (requiredExtensionsSupported) {
-      SwapChainSupportDetails swapChainSupport = querySwapChainSupport(aPhysicalDevice);
+      SwapChain::SwapChainSupportDetails swapChainSupport = SwapChain::querySwapChainSupport(aPhysicalDevice, &pWindow->surface);
       swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
@@ -182,33 +182,6 @@ namespace Vulkan {
       i++;
     }
     return indices;
-  }
-
-  Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice aPhysicalDevice) {
-    SwapChainSupportDetails details;
-
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(aPhysicalDevice, pWindow->surface, &details.capabilities);
-
-
-    uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(aPhysicalDevice, pWindow->surface, &formatCount, nullptr);
-
-    if (formatCount != 0) {
-      details.formats.resize(formatCount);
-      vkGetPhysicalDeviceSurfaceFormatsKHR(aPhysicalDevice, pWindow->surface, &formatCount, details.formats.data());
-    }
-
-
-    uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(aPhysicalDevice, pWindow->surface, &presentModeCount, nullptr);
-
-    if (presentModeCount != 0) {
-      details.presentModes.resize(presentModeCount);
-      vkGetPhysicalDeviceSurfacePresentModesKHR(aPhysicalDevice, pWindow->surface, &presentModeCount, details.presentModes.data());
-    }
-
-
-    return details;
   }
 }
 }
