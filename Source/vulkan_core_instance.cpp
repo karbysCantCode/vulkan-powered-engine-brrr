@@ -9,8 +9,16 @@ namespace Malodee {
 namespace Vulkan {
 
   Instance::Instance(Window* window) {
-    pWindow = window;
-    createInstance();
+    if (window != nullptr) {
+      pWindow = window;
+      createInstance();
+      pWindow->setVkInstance(&instance);
+      pWindow->createSurface();
+    }
+  }
+
+  Instance::~Instance() {
+    vkDestroyInstance(instance, nullptr);
   }
 
   bool Instance::checkValidationLayerSupport() {

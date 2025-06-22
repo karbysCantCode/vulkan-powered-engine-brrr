@@ -12,33 +12,6 @@
 namespace Malodee {
 namespace Vulkan {
 
-  SwapChain::SwapChainSupportDetails SwapChain::querySwapChainSupport(VkPhysicalDevice aPhysicalDevice, VkSurfaceKHR *aSurface) {
-    SwapChainSupportDetails details;
-
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(aPhysicalDevice, *aSurface, &details.capabilities);
-
-
-    uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(aPhysicalDevice, *aSurface, &formatCount, nullptr);
-
-    if (formatCount != 0) {
-      details.formats.resize(formatCount);
-      vkGetPhysicalDeviceSurfaceFormatsKHR(aPhysicalDevice, *aSurface, &formatCount, details.formats.data());
-    }
-
-
-    uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(aPhysicalDevice, *aSurface, &presentModeCount, nullptr);
-
-    if (presentModeCount != 0) {
-      details.presentModes.resize(presentModeCount);
-      vkGetPhysicalDeviceSurfacePresentModesKHR(aPhysicalDevice, *aSurface, &presentModeCount, details.presentModes.data());
-    }
-
-
-    return details;
-  }
-
   VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
     for (const auto& availableFormat : availableFormats) {
       if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -64,7 +37,7 @@ namespace Vulkan {
       return capabilities.currentExtent;
     } else {
       int width, height;
-      glfwGetFramebufferSize(pWindow->window, &width, &height);
+      glfwGetFramebufferSize(pWindow->pWindow, &width, &height);
       
       VkExtent2D actualExtent = {
         static_cast<uint32_t>(width),
@@ -78,7 +51,7 @@ namespace Vulkan {
   }
 
   void SwapChain::createSwapChain() {
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(pDevice->physicalDevice, &pWindow->surface);
+    Device::SwapChainSupportDetails swapChainSupport = Device::querySwapChainSupport(pDevice->physicalDevice, &pWindow->surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -159,15 +132,16 @@ namespace Vulkan {
     }
   }
 
-  SwapChain::SwapChain(Device *device, Window *window)
-  : pDevice(device),
-    pWindow(window)
-   {
+  SwapChain::SwapChain(Device *device, Window *window) : pDevice(device), pWindow(window) {
     createSwapChain();
   }
 
   SwapChain::~SwapChain() {
+    for (auto imageView : vkSwapChainImageViews) {
+      vkDestroyImageView(pDevice->device, imageView, nullptr);
+    }
 
+    vkDestroySwapchainKHR(pDevice->device, swapchain, nullptr);
   }
 }
 }

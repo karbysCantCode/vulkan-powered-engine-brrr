@@ -5,7 +5,6 @@
 
 #include "vulkan_core_window.hpp"
 #include "vulkan_core_instance.hpp"
-#include "vulkan_core_swapchain.hpp"
 
 //std
 #include <vector>
@@ -24,13 +23,19 @@ namespace Vulkan {
         return graphicsFamily.has_value() && presentFamily.has_value();
       }
     };
-
-    Device(Instance *instance, Window *window);
+    struct SwapChainSupportDetails {
+      VkSurfaceCapabilitiesKHR capabilities;
+      std::vector<VkSurfaceFormatKHR> formats;
+      std::vector<VkPresentModeKHR> presentModes;
+    };
+    
+    Device(Instance *instance, Window *window = nullptr);
     ~Device();
 
     void initDevice(Window *window);
-    
+
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice aPhysicalDevice);
+    static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice aPhysicalDevice, VkSurfaceKHR *aSurface);
 
     VkDevice device;
     VkPhysicalDevice physicalDevice;

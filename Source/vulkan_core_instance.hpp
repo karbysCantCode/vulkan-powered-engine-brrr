@@ -14,9 +14,11 @@ namespace Vulkan {
 
   class Instance {
     public:
-
+    
     Instance(Window* window);
     ~Instance();
+    
+    void createInstance();
 
     VkInstance instance;
     Window* pWindow;
@@ -29,7 +31,6 @@ namespace Vulkan {
     #endif
 
     private:
-    void createInstance();
     bool checkValidationLayerSupport();
   };
 }

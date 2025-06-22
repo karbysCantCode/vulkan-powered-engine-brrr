@@ -16,11 +16,6 @@ namespace Vulkan {
 
   class SwapChain {
     public:
-    struct SwapChainSupportDetails {
-      VkSurfaceCapabilitiesKHR capabilities;
-      std::vector<VkSurfaceFormatKHR> formats;
-      std::vector<VkPresentModeKHR> presentModes;
-    };
 
     SwapChain(Device *device, Window *window);
     ~SwapChain();
@@ -31,7 +26,6 @@ namespace Vulkan {
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-    static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice aPhysicalDevice, VkSurfaceKHR *aSurface);
 
     Device* pDevice;
     Window* pWindow;

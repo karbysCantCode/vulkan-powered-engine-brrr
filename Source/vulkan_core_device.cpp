@@ -10,18 +10,24 @@
 namespace Malodee {
 namespace Vulkan {
 
-  Device::Device(Instance *instance, Window *window = nullptr) {
+  Device::Device(Instance *instance, Window *window) {
+    pInstance = instance;
     if (window != nullptr) {
-      pWindow = window;
+      initDevice(window);
     }
   }
 
-  void Device::initDevice(Window *window = nullptr) {
+  Device::~Device() {
+    vkDestroyDevice(device, nullptr);
+  }
+
+  void Device::initDevice(Window *window) {
     if (window != nullptr) {
       pWindow = window;
     }
 
     pickPhysicalDevice();
+    createLogicalDevice();
   }
     
   void Device::createLogicalDevice() {
@@ -117,7 +123,7 @@ namespace Vulkan {
     bool swapChainAdequate = false;
 
     if (requiredExtensionsSupported) {
-      SwapChain::SwapChainSupportDetails swapChainSupport = SwapChain::querySwapChainSupport(aPhysicalDevice, &pWindow->surface);
+      SwapChainSupportDetails swapChainSupport = querySwapChainSupport(aPhysicalDevice, &pWindow->surface);
       swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
@@ -150,6 +156,33 @@ namespace Vulkan {
     }
 
     return requiredExtensions.empty();
+  }
+
+  Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice aPhysicalDevice, VkSurfaceKHR *aSurface) {
+    SwapChainSupportDetails details;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(aPhysicalDevice, *aSurface, &details.capabilities);
+
+
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(aPhysicalDevice, *aSurface, &formatCount, nullptr);
+
+    if (formatCount != 0) {
+      details.formats.resize(formatCount);
+      vkGetPhysicalDeviceSurfaceFormatsKHR(aPhysicalDevice, *aSurface, &formatCount, details.formats.data());
+    }
+
+
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(aPhysicalDevice, *aSurface, &presentModeCount, nullptr);
+
+    if (presentModeCount != 0) {
+      details.presentModes.resize(presentModeCount);
+      vkGetPhysicalDeviceSurfacePresentModesKHR(aPhysicalDevice, *aSurface, &presentModeCount, details.presentModes.data());
+    }
+
+
+    return details;
   }
 
   Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice aPhysicalDevice) {

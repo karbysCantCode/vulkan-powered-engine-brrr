@@ -19,17 +19,18 @@ namespace Vulkan {
       std::string windowName;
     };
 
-    Window(uint32_t width, uint32_t height, std::string &windowName, VkInstance *vkInstance = nullptr);
+    Window(uint32_t width, uint32_t height, std::string windowName, VkInstance* vkInstance = nullptr);
     ~Window();
 
     void createSurface();
+    void DestroySurface();
+
+    void setVkInstance(VkInstance* instance);
 
     VkSurfaceKHR surface;
-    GLFWwindow* window;
-    VkInstance* instance;
+    GLFWwindow* pWindow;
+    VkInstance* pVkInstance;
     WindowInfo  windowInfo;
-
-    private:
   };
 }
 }
